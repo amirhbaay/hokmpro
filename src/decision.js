@@ -16,6 +16,8 @@ export const GOALS = [
 
 function shortnessBonus(M, pid, c) {
   if (M.mode !== 'normal' || c.suit === M.trump) return 0;
+  // Never dump an unestablished King or Queen just because it is a singleton/doubleton!
+  if ((c.rank === 'K' || c.rank === 'Q') && !isBossOfSuit(M, c)) return 0;
   const n = M.own.filter((x) => x.suit === c.suit).length;
   if (n === 1) return 0.55;
   if (n === 2) return 0.25;
@@ -97,37 +99,61 @@ function duckUnderPartner(M, pid, c, cls, kotRisk) {
   return out;
 }
 
-function firstTrickLeadAdjust(M, pid, c, kotRisk) {
+// Evaluate leading honors vs small setup cards on ANY trick (not only trick 1).
+function leadHonorAdjust(M, pid, c, kotRisk) {
   const out = { score: 0, tags: [] };
   const isTrump = M.mode === 'normal' && !!M.trump && c.suit === M.trump;
   const trumps = M.mode === 'normal' && M.trump ? M.own.filter((x) => x.suit === M.trump) : [];
   const akPair = trumps.some((x) => x.rank === 'A') && trumps.some((x) => x.rank === 'K');
+
   if (isTrump) {
     if (akPair) out.tags.push('TRUMP_CONTROL');
     if (c.rank === 'A') {
       const controlOurs = akPair && trumps.length >= 3;
-      if (!kotRisk) out.score -= controlOurs ? 1.5 : 6;
+      if (!kotRisk && M.trickNum === 1) out.score -= controlOurs ? 1.5 : 6;
     } else if (c.rank === 'K' && akPair && !kotRisk) {
       out.score -= 1.5;
-    } else if (!kotRisk) {
+    } else if (!kotRisk && !isBossOfSuit(M, c)) {
       out.score -= 5;
     }
     return out;
   }
-  // Cashing a side Ace on Trick 1 when holding a real game hand (>=5 cards) or >=2 cards in the suit
+
   const suitLen = M.own.filter((x) => x.suit === c.suit).length;
   if (c.rank === 'A' && M.mode === 'normal' && (M.own.length >= 5 || suitLen >= 2)) {
     out.score += 2.2;
     out.tags.push('CASH_SIDE_ACE');
     return out;
   }
+
   if (kotRisk) return out;
-  if (c.rank === 'K' || c.rank === 'Q') {
-    const lower = M.own.some((x) => x.suit === c.suit && cardVal(x, M.mode) < cardVal(c, M.mode));
-    if (lower) { out.score -= 2; out.tags.push('ESTABLISH_SECONDARY_HONOR'); }
+
+  // CRITICAL RULE: When the Ace (or higher honor) of a suit has NOT been played yet
+  // (!isBossOfSuit(M, c)), NEVER lead a King or Queen unless holding K+Q together!
+  if ((c.rank === 'K' || c.rank === 'Q') && (M.mode === 'normal' || M.mode === 'sers')) {
+    if (!isBossOfSuit(M, c)) {
+      const hasK = M.own.some((x) => x.suit === c.suit && x.rank === 'K');
+      const hasQ = M.own.some((x) => x.suit === c.suit && x.rank === 'Q');
+      const hasKQ = hasK && hasQ;
+      const lower = M.own.some((x) => x.suit === c.suit && cardVal(x, M.mode) < cardVal(c, M.mode));
+      if (!hasKQ) {
+        // Heavy penalty whether singleton K or K-x: do NOT sacrifice K to an unplayed A!
+        out.score -= lower ? 6.5 : 5.5;
+        out.tags.push(lower ? 'ESTABLISH_SECONDARY_HONOR' : 'PRESERVE_HIGH_CARD');
+      } else if (lower && M.trickNum === 1) {
+        out.score -= 1.5;
+        out.tags.push('ESTABLISH_SECONDARY_HONOR');
+      }
+    } else {
+      // The Ace WAS already played! Now our King (or Queen) IS the Boss of the suit -> cash it!
+      out.score += 2.0;
+      out.tags.push('CASH_SIDE_ACE');
+    }
   } else if (M.mode === 'normal' && cardVal(c, 'normal') < 11 &&
-             M.own.some((x) => x.suit === c.suit && (x.rank === 'K' || x.rank === 'Q'))) {
-    out.score += 0.6; out.tags.push('ESTABLISH_SECONDARY_HONOR');
+             M.own.some((x) => x.suit === c.suit && (x.rank === 'K' || x.rank === 'Q') && !isBossOfSuit(M, x))) {
+    // Leading a small card from a suit where we hold an unestablished K or Q draws out the A!
+    out.score += 0.9;
+    out.tags.push('ESTABLISH_SECONDARY_HONOR');
   }
   return out;
 }
@@ -213,6 +239,10 @@ export function scoreMoves(s, pid) {
       if (M.mode === 'normal' && c.suit === M.trump && dt <= 0) {
         sc -= isBossOfSuit(M, c) ? 2.2 : 5.5;
       }
+      // Apply lead honor protection on ALL tricks (never lead unprotected K/Q before A is played!)
+      const lha = leadHonorAdjust(M, pid, c, kotRisk);
+      sc += lha.score;
+      for (const t of lha.tags) if (!goals.includes(t)) goals.push(t);
     }
 
     if (M.mode === 'normal' && M.trump && c.suit === M.trump && cls.iWin &&
@@ -268,12 +298,6 @@ export function scoreMoves(s, pid) {
       }
     }
 
-    if (lead && M.trickNum === 1) {
-      const ft = firstTrickLeadAdjust(M, pid, c, kotRisk);
-      sc += ft.score;
-      for (const t of ft.tags) if (!goals.includes(t)) goals.push(t);
-    }
-
     return { card: c, score: sc, goals: [...new Set(goals)], cls, fv, v };
   });
 
@@ -298,7 +322,7 @@ export function explain(mv) {
   const t = Math.round((mv.cls.winProb || 0) * 100);
   switch (g) {
     case 'CASH_SIDE_ACE':
-      return `نقد کردن آس جانبی (${sym}${c.rank}) پیش از خالی شدن دست حریفان.`;
+      return `نقد کردن کارت سرِ جانبی (${sym}${c.rank}) پیش از خالی شدن دست حریفان.`;
     case 'WIN_TRICK':
       return mv.cls.status === 'secure'
         ? `${sym}${c.rank} برد قطعی است — هیچ کارت بالاتری در دست رقبا نیست.`
@@ -312,7 +336,7 @@ export function explain(mv) {
     case 'CREATE_VOID':
       return `تک‌برگ‌زدایی از ${sym} برای ایجاد خال خالی و برش در دورهای بعد.`;
     case 'PRESERVE_HIGH_CARD':
-      return `ذخیره کارت سر برای تریک‌های کلیدی‌تر.`;
+      return `حفظ کارت سر (آس این خال هنوز بازی نشده است).`;
     case 'PARTNER_SUPPORT':
       return `پاس به سیگنال یار در خال ${sym}.`;
     case 'BLEED_LOW_CARD':

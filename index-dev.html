@@ -29,6 +29,7 @@
     <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18c1.7 0 2.5-1 2.5-2.2 0-.6-.2-1.1-.6-1.5-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h1.6A4 4 0 0 0 21 10c0-4-4-7-9-7z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="7.5" cy="10.5" r="1.2" fill="currentColor"/><circle cx="10.5" cy="7.5" r="1.2" fill="currentColor"/><circle cx="14.5" cy="7.5" r="1.2" fill="currentColor"/></symbol>
     <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
     <symbol id="i-fan" viewBox="0 0 24 24"><rect x="4" y="5" width="9" height="14" rx="1.8" transform="rotate(-12 8 12)" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="10" y="5" width="9" height="14" rx="1.8" transform="rotate(10 14 12)" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.6.77 1.02 1.41 1.09H21a2 2 0 1 1 0 4h-.09c-.64.07-1.15.49-1.51 1z" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
   </defs></svg>
 
   <!-- ============ SPA VIEW 1: ROYAL LOBBY (START SCREEN) ============ -->
@@ -60,7 +61,7 @@
         <span class="s-spade">♠</span><span class="s-heart">♥</span><span class="s-diamond">♦</span><span class="s-club">♣</span>
       </div>
       <h1 class="start-title">حکم سلطنتی</h1>
-      <p class="start-subtitle">معماری ۴ موقعیت · گرافیک برداری · آس‌کشی رسمی</p>
+      <p class="start-subtitle">کارت‌های درشت و خوانا · هوش مصنوعی ۴ موقعیت · آس‌کشی رسمی</p>
 
       <div class="theme-switcher-pill" id="startThemePill">
         <button class="theme-chip active" id="themeNavyBtn" type="button">🏛️ لاجوردی سلطنتی</button>
@@ -86,37 +87,20 @@
 
   <!-- ============ SPA VIEW 2: MOBILE-FIRST ARENA ============ -->
   <main class="game-wrapper hidden" id="gameWrapper">
-    <!-- Top Compact App Bar -->
+    <!-- Single Ultra-Slim Unified Top Score & Status Strip (frees vertical space for huge cards) -->
     <header class="header glass">
-      <div class="brand-group">
-        <div class="title"><svg class="ic"><use href="#i-crown"/></svg><span>حکم</span></div>
-        <button class="icon-pill" id="themeBtn" title="تغییر تم (لاجوردی / زمردی)" aria-label="تغییر تم">
-          <svg class="ic"><use href="#i-palette"/></svg>
-          <span id="themeLabel">لاجوردی</span>
-        </button>
-      </div>
-
       <div class="scores">
         <div class="score-box us">ما <b id="scoreA">0</b></div>
         <div class="score-box them">آنها <b id="scoreB">0</b></div>
       </div>
 
-      <div class="top-tools">
-        <button class="tool-btn neo hidden" id="lastTrickBtn" title="دست قبلی و آنالیز" aria-label="نمایش آخرین دست"><svg class="ic"><use href="#i-history"/></svg></button>
-        <button class="tool-btn neo" id="guideBtn" title="راهنمای قوانین و استراتژی" aria-label="راهنمای بازی"><svg class="ic"><use href="#i-book"/></svg></button>
-        <button class="tool-btn neo" id="soundBtn" title="صدا" aria-label="روشن/خاموش کردن صدا"></button>
-        <button class="tool-btn neo" id="resetBtn" title="شروع دوباره" aria-label="شروع دوباره بازی"><svg class="ic"><use href="#i-reset"/></svg></button>
-        <button class="tool-btn neo hidden" id="updateBtn" title="نصب نسخه جدید" aria-label="به‌روزرسانی برنامه"><svg class="ic"><use href="#i-update"/></svg></button>
+      <div class="info-bar">
+        <div class="info-item"><span>دست <b id="trickNum">0</b>/13</span></div>
+        <div class="info-item icon-us"><span>ما <b id="tricksA">0</b></span></div>
+        <div class="info-item icon-them"><span>آنها <b id="tricksB">0</b></span></div>
+        <div class="info-item icon-trump"><span>حکم <b id="trumpDisplay">-</b></span></div>
       </div>
     </header>
-
-    <!-- Live Round HUD Strip -->
-    <div class="info-bar glass">
-      <div class="info-item"><svg class="ic"><use href="#i-hand"/></svg><span>دست <b id="trickNum">0</b>/13</span></div>
-      <div class="info-item icon-us"><svg class="ic"><use href="#i-user"/></svg><span>ما <b id="tricksA">0</b></span></div>
-      <div class="info-item icon-them"><svg class="ic"><use href="#i-robot"/></svg><span>آنها <b id="tricksB">0</b></span></div>
-      <div class="info-item icon-trump"><svg class="ic"><use href="#i-crown"/></svg><span>حکم <b id="trumpDisplay">-</b></span></div>
-    </div>
 
     <!-- Official Ace-Draw Ceremony Banner (Non-blocking overlay) -->
     <div class="ace-draw-banner glass-strong hidden" id="aceDrawBanner">
@@ -124,7 +108,7 @@
       <div class="ace-draw-cards" id="aceDrawCards"></div>
     </div>
 
-    <!-- Cross-Table 4-Player Arena (North = Partner 3, West = Opp 2, East = Opp 4, Center = Felt Table) -->
+    <!-- Cross-Table 4-Player Arena -->
     <div class="arena-stage">
       <!-- NORTH SEAT: Partner (Player 3) -->
       <div class="seat-node seat-north opponent" id="player3Box">
@@ -142,7 +126,7 @@
         </div>
       </div>
 
-      <!-- MIDDLE ROW: West Seat (Player 2) + Felt Table + East Seat (Player 4) -->
+      <!-- MIDDLE ROW: West Seat (Player 2) + Large Felt Table + East Seat (Player 4) -->
       <div class="table-middle-row">
         <!-- WEST SEAT: Opponent 1 (Player 2) -->
         <div class="seat-node seat-west opponent" id="player2Box">
@@ -156,10 +140,9 @@
           <span class="void-pills" id="voids2"></span>
         </div>
 
-        <!-- CENTER ROYAL FELT TABLE -->
+        <!-- CENTER ROYAL FELT TABLE (Enlarged for big table cards) -->
         <div class="play-area">
           <div class="table neo">
-            <!-- Persian Shamsa & Toranj Centerpiece SVG -->
             <svg class="table-carpet-svg" viewBox="0 0 240 240" aria-hidden="true">
               <g fill="none" stroke="currentColor" stroke-opacity="0.16" stroke-width="1.2">
                 <circle cx="120" cy="120" r="96" stroke-dasharray="4 4"/>
@@ -192,7 +175,7 @@
       </div>
     </div>
 
-    <!-- SOUTH DOCK: Human Player Hand & Coach -->
+    <!-- SOUTH DOCK: Large Eye-Friendly Player Hand -->
     <section class="player-section glass" id="player1Box">
       <div class="player-bar">
         <div class="player-info">
@@ -207,22 +190,37 @@
           </div>
           <span class="void-pills" id="voids1"></span>
         </div>
-
-        <button class="fan-toggle-btn neo" id="fanToggleBtn" type="button" title="تغییر چیدمان کارت‌ها (بادبزنی / شبکه‌ای)">
-          <svg class="ic"><use href="#i-fan"/></svg>
-          <span id="fanModeLabel">بادبزنی</span>
-        </button>
       </div>
 
       <div class="hand fan-mode" id="handCards"></div>
       <div class="coach-bar hidden" id="coachBar" aria-live="polite"></div>
     </section>
+
+    <!-- BOTTOM NAVIGATION DOCK (منوی پایین صفحه برای دست قبلی، تحلیل، چیدمان، راهنما و تنظیمات) -->
+    <nav class="bottom-nav glass-strong" aria-label="منوی پایین بازی">
+      <button class="bnav-btn" id="lastTrickBtn" type="button" title="دست قبلی و آنالیز">
+        <svg class="ic"><use href="#i-history"/></svg>
+        <span>دست قبلی و تحلیل</span>
+      </button>
+      <button class="bnav-btn" id="fanToggleBtn" type="button" title="تغییر چیدمان کارت‌ها">
+        <svg class="ic"><use href="#i-fan"/></svg>
+        <span id="fanModeLabel">بادبزنی</span>
+      </button>
+      <button class="bnav-btn" id="guideBtn" type="button" title="راهنمای قوانین و استراتژی">
+        <svg class="ic"><use href="#i-book"/></svg>
+        <span>راهنما</span>
+      </button>
+      <button class="bnav-btn" id="settingsNavBtn" type="button" title="تنظیمات و ظاهر">
+        <svg class="ic"><use href="#i-settings"/></svg>
+        <span>تنظیمات</span>
+      </button>
+    </nav>
   </main>
 
   <div class="winner-popup" id="winnerPopup"></div>
 
-  <!-- ============ MODALS & DRAWERS ============ -->
-  <!-- 1. Trump Selection Modal -->
+  <!-- ============ MODALS & BOTTOM-SHEET DRAWERS ============ -->
+  <!-- 1. Trump Selection Modal (with Large Preview Cards) -->
   <div class="modal" id="trumpModal">
     <div class="modal-box glass-strong">
       <h2 class="modal-title"><svg class="ic"><use href="#i-crown"/></svg> شما حاکم هستید — تعیین حکم</h2>
@@ -273,7 +271,7 @@
     </div>
   </div>
 
-  <!-- 5. Last Trick & Tactical Analysis Drawer -->
+  <!-- 5. Last Trick & Tactical Analysis Bottom-Sheet Drawer -->
   <div class="modal" id="lastTrickModal">
     <div class="modal-box glass-strong">
       <h2 class="modal-title"><svg class="ic"><use href="#i-history"/></svg> بررسی دست قبلی و آنالیز تاکتیکی</h2>
@@ -282,7 +280,47 @@
     </div>
   </div>
 
-  <!-- 6. Official Rules & 4-Position Strategy Guide Modal -->
+  <!-- 6. Settings & Theme Bottom-Sheet Drawer (تنظیمات در منوی پایین) -->
+  <div class="modal" id="settingsModal">
+    <div class="modal-box glass-strong">
+      <h2 class="modal-title"><svg class="ic"><use href="#i-settings"/></svg> تنظیمات بازی و ظاهر</h2>
+
+      <div class="settings-list">
+        <div class="setting-row">
+          <span>تم رنگی میز و محیط</span>
+          <button class="icon-pill" id="themeBtn" type="button" title="تغییر تم">
+            <svg class="ic"><use href="#i-palette"/></svg>
+            <span id="themeLabel">لاجوردی</span>
+          </button>
+        </div>
+
+        <div class="setting-row">
+          <span>افکت‌های صوتی بازی</span>
+          <button class="tool-btn neo" id="soundBtn" type="button" title="صدا" aria-label="روشن/خاموش کردن صدا"></button>
+        </div>
+
+        <div class="setting-row">
+          <span>مربی هوشمند (پیشنهاد حرکت)</span>
+          <button class="icon-pill" id="coachQuickBtn" type="button">فعال / غیرفعال</button>
+        </div>
+
+        <div class="setting-row">
+          <span>شروع مجدد کل مسابقه</span>
+          <button class="btn neo secondary" id="resetBtn" type="button" title="شروع دوباره">
+            <svg class="ic"><use href="#i-reset"/></svg><span>شروع دوباره</span>
+          </button>
+        </div>
+
+        <button class="tool-btn neo hidden" id="updateBtn" type="button" title="نصب نسخه جدید" aria-label="به‌روزرسانی برنامه">
+          <svg class="ic"><use href="#i-update"/></svg>
+        </button>
+      </div>
+
+      <button class="btn neo primary" id="closeSettingsBtn" type="button">بستن تنظیمات</button>
+    </div>
+  </div>
+
+  <!-- 7. Official Rules & 4-Position Strategy Guide Modal -->
   <div class="modal" id="guideModal">
     <div class="modal-box glass-strong guide-modal-box">
       <h2 class="modal-title"><svg class="ic"><use href="#i-book"/></svg> دانشنامه رسمی حکم و استراتژی ۴ موقعیت</h2>
@@ -295,7 +333,7 @@
         </div>
         <div class="guide-card">
           <h3>۲. استراتژی تخصصی ۴ موقعیت در تریک</h3>
-          <p>• <b>نفر اول (لیدر):</b> نقد کردن آس‌های جانبی پیش از خالی شدن دست رقبا، خودداری از حکم‌کشی بی‌مورد بدون داشتن سرِ حکم، و تک‌برگ‌زدایی برای ایجاد قدرت برش.</p>
+          <p>• <b>نفر اول (لیدر):</b> نقد کردن آس‌های جانبی پیش از خالی شدن دست رقبا، عدم بازی کردن شاه/بیبی وقتی آس آن خال هنوز بیرون است، و تک‌برگ‌زدایی برای ایجاد قدرت برش.</p>
           <p>• <b>نفر دوم (Second Hand Low):</b> ذخیره کارت‌های سرِ تک‌افتاده (مثل شاه) در برابر لید ضعیف حریف و واگذاری تصمیم به یار در دست چهارم.</p>
           <p>• <b>نفر سوم (Third Hand High &amp; Finesse):</b> بازی کردن بالاترین کارت برنده (یا فینس با A-Q) وقتی لیدِ یار ضعیف است تا دست چهارم مفت نبرد؛ و رد دادن زیرِ یار فقط زمانی که کارتِ یار واقعاً سر است.</p>
           <p>• <b>نفر چهارم (Fourth Hand Cheap):</b> تصاحب قطعی دست با ارزان‌ترین کارتِ کافی و عدم قاپیدن دستِ برندهٔ یار.</p>

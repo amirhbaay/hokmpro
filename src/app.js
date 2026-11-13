@@ -1,8 +1,7 @@
-// Hokm Royal SPA Controller — wires DOM to the pure engine (src/game.js) & custom SVG art (src/svg.js).
+// Hokm Royal SPA Controller — wires DOM to the pure engine (src/game.js).
 import { SYMBOLS, sortHand, mulberry32 } from './rules.js';
 import { createGame } from './game.js';
 import { coachHint, gradeMove } from './advisor.js';
-import { renderCardCenterSvg } from './svg.js';
 import * as storage from './storage.js';
 
 const $ = (id) => document.getElementById(id);
@@ -13,10 +12,10 @@ const THEME_KEY = 'hokm_theme_v1';
 const FAN_KEY = 'hokm_fan_v1';
 
 let soundOn = storage && localStorage.getItem(storage.SOUND_KEY) !== '0';
-let analysisOn = localStorage.getItem('hokm_analysis_v1') !== '0'; // enabled by default for pro experience
+let analysisOn = localStorage.getItem('hokm_analysis_v1') !== '0';
 let coachOn = localStorage.getItem('hokm_coach_v1') === '1';
 let currentTheme = localStorage.getItem(THEME_KEY) || 'navy';
-let fanMode = localStorage.getItem(FAN_KEY) !== '0';
+let fanMode = false; // Normal non-overlapping layout by default for crystal-clear cards
 
 let audioCtx = null;
 function getAudioCtx() {
@@ -86,7 +85,7 @@ const view = {
     `).join('');
     banner.classList.remove('hidden');
     if (aceDrawTimer) clearTimeout(aceDrawTimer);
-    aceDrawTimer = setTimeout(() => { banner.classList.add('hidden'); }, 3600);
+    aceDrawTimer = setTimeout(() => { banner.classList.add('hidden'); }, 3500);
   },
   showPopup: (t) => { const p = $('winnerPopup'); p.textContent = t; p.classList.add('show'); },
   hidePopup: () => $('winnerPopup').classList.remove('show'),
@@ -125,24 +124,15 @@ const gameRng = seedParam ? mulberry32(Number(seedParam) >>> 0) : Math.random;
 const game = createGame(view, gameRng, null);
 const G = game.G;
 
-// ---------- Bespoke SVG Card Element ----------
+// ---------- Classic Crystal-Clear Card Element (حالت معمولی و کاملاً واضح) ----------
 function createCardEl(c, sizeClass = '') {
   const el = document.createElement('div');
   const isTrump = G.trumpMode === 'normal' && c.suit === G.trump;
   el.className = `card suit-${c.suit}${isTrump ? ' trump' : ''}${sizeClass ? ' ' + sizeClass : ''}`;
   el.dataset.card = `${c.suit}:${c.rank}`;
-  const sym = SYMBOLS[c.suit];
-  const centerArt = renderCardCenterSvg(c, isTrump);
-  el.innerHTML = `
-    <div class="card-corner top">
-      <span class="card-rank">${c.rank}</span>
-      <span class="card-mini-pip">${sym}</span>
-    </div>
-    <div class="card-suit-center">${centerArt}</div>
-    <div class="card-corner bottom">
-      <span class="card-rank">${c.rank}</span>
-      <span class="card-mini-pip">${sym}</span>
-    </div>`;
+  el.innerHTML = `<span class="card-rank">${c.rank}</span>
+    <span class="card-suit-center">${SYMBOLS[c.suit]}</span>
+    <span class="card-rank bottom">${c.rank}</span>`;
   return el;
 }
 
@@ -168,9 +158,7 @@ function renderHand() {
     }
   }
 
-  const total = h.length;
-  const mid = (total - 1) / 2;
-  for (let idx = 0; idx < total; idx++) {
+  for (let idx = 0; idx < h.length; idx++) {
     const c = h[idx];
     const el = createCardEl(c);
     const ok = myTurn && can.some((x) => x.suit === c.suit && x.rank === c.rank);
@@ -178,14 +166,6 @@ function renderHand() {
     if (ok) el.onclick = () => selectCard(c);
     const isSel = G.selectedCard && G.selectedCard.suit === c.suit && G.selectedCard.rank === c.rank;
     if (isSel) el.classList.add('selected');
-
-    // Subtle fan arc rotation when in fanMode and not selected
-    if (fanMode && !isSel && total > 3) {
-      const offset = idx - mid;
-      const deg = (offset * 1.6).toFixed(1);
-      const lift = Math.abs(offset) * 1.3;
-      el.style.transform = `translateY(${lift.toFixed(1)}px) rotate(${deg}deg)`;
-    }
     cont.appendChild(el);
   }
   applyCoach(cont, myTurn);
@@ -248,12 +228,10 @@ function updateUI() {
     $(`crown${i}`).classList.add('hidden');
     $(`trumpBadge${i}`).classList.add('hidden');
 
-    // Update remaining card counts for seats 2, 3, 4
     if (i >= 2) {
       const cntEl = $(`count${i}`);
       if (cntEl && G.players[i]) cntEl.textContent = `${G.players[i].hand.length} برگ`;
     }
-    // Update proven void badges for each seat
     const vEl = $(`voids${i}`);
     if (vEl) {
       const vs = (G.memory && G.memory.voids && G.memory.voids[i]) || [];
@@ -270,7 +248,6 @@ function updateUI() {
     }
   }
   if (G.phase !== 'idle') storage.saveGame(lz, localStorage, G);
-  $('lastTrickBtn').classList.toggle('hidden', !G.lastTrick);
 }
 
 function renderHistory() {
@@ -295,9 +272,16 @@ const QUALITY_LABEL = {
 };
 
 function showLastTrick() {
-  if (!G.lastTrick) return;
   const cont = $('lastTrickCards');
   cont.innerHTML = '';
+  if (!G.lastTrick) {
+    const emptyMsg = document.createElement('p');
+    emptyMsg.className = 'outcome-line';
+    emptyMsg.textContent = 'هنوز هیچ دستی در این راند تکمیل نشده است.';
+    cont.appendChild(emptyMsg);
+    $('lastTrickModal').classList.add('show');
+    return;
+  }
   for (let pos = 0; pos < G.lastTrick.entries.length; pos++) {
     const entry = G.lastTrick.entries[pos];
     const pid = entry.player;
@@ -358,12 +342,11 @@ function applyTheme(theme) {
 function toggleFanMode() {
   fanMode = !fanMode;
   const lbl = $('fanModeLabel');
-  if (lbl) lbl.textContent = fanMode ? 'بادبزنی' : 'شبکه‌ای';
+  if (lbl) lbl.textContent = fanMode ? 'فشرده' : 'بادبزنی';
   try { localStorage.setItem(FAN_KEY, fanMode ? '1' : '0'); } catch (e) { /* ignore */ }
   renderHand();
 }
 
-// ---------- Start Screen & Modals ----------
 function renderStartStats() {
   const el = $('statsLine');
   const s = storage.loadStats(localStorage);
@@ -373,7 +356,7 @@ function renderStartStats() {
 }
 
 function hideModals() {
-  for (const id of ['trumpModal', 'roundModal', 'endModal', 'kotModal', 'lastTrickModal', 'guideModal']) {
+  for (const id of ['trumpModal', 'roundModal', 'endModal', 'kotModal', 'lastTrickModal', 'guideModal', 'settingsModal']) {
     const m = $(id);
     if (m) m.classList.remove('show');
   }
@@ -401,7 +384,6 @@ $('newGameBtn').onclick = () => {
   game.startRound();
 };
 $('resetBtn').onclick = () => {
-  
   hideModals();
   G.score = { A: 0, B: 0 };
   G.roundHistory = [];
@@ -410,7 +392,6 @@ $('resetBtn').onclick = () => {
   game.startRound();
 };
 $('updateBtn').onclick = async () => {
-  
   try {
     if ('caches' in window) await Promise.all((await caches.keys()).map((k) => caches.delete(k)));
     if ('serviceWorker' in navigator) await Promise.all((await navigator.serviceWorker.getRegistrations()).map((r) => r.unregister()));
@@ -423,7 +404,6 @@ $('lastTrickBtn').onclick = showLastTrick;
 $('closeLastTrick').onclick = () => $('lastTrickModal').classList.remove('show');
 $('lastTrickModal').onclick = (e) => { if (e && e.target && e.target.id === 'lastTrickModal') $('lastTrickModal').classList.remove('show'); };
 
-// Theme & Guide & Fan buttons
 if ($('themeBtn')) $('themeBtn').onclick = () => applyTheme(currentTheme === 'navy' ? 'emerald' : 'navy');
 if ($('themeNavyBtn')) $('themeNavyBtn').onclick = () => applyTheme('navy');
 if ($('themeEmeraldBtn')) $('themeEmeraldBtn').onclick = () => applyTheme('emerald');
@@ -432,6 +412,25 @@ if ($('guideBtn')) $('guideBtn').onclick = () => $('guideModal').classList.add('
 if ($('openGuideBtn')) $('openGuideBtn').onclick = () => $('guideModal').classList.add('show');
 if ($('closeGuideBtn')) $('closeGuideBtn').onclick = () => $('guideModal').classList.remove('show');
 if ($('guideModal')) $('guideModal').onclick = (e) => { if (e && e.target && e.target.id === 'guideModal') $('guideModal').classList.remove('show'); };
+
+if ($('settingsNavBtn')) $('settingsNavBtn').onclick = () => $('settingsModal').classList.add('show');
+if ($('closeSettingsBtn')) $('closeSettingsBtn').onclick = () => $('settingsModal').classList.remove('show');
+if ($('settingsModal')) $('settingsModal').onclick = (e) => { if (e && e.target && e.target.id === 'settingsModal') $('settingsModal').classList.remove('show'); };
+
+function updateCoachQuickBtn() {
+  const btn = $('coachQuickBtn');
+  if (btn) btn.textContent = coachOn ? 'روشن ✅' : 'خاموش';
+}
+if ($('coachQuickBtn')) {
+  $('coachQuickBtn').onclick = () => {
+    coachOn = !coachOn;
+    const tc = $('toggleCoach');
+    if (tc) tc.checked = coachOn;
+    try { localStorage.setItem('hokm_coach_v1', coachOn ? '1' : '0'); } catch (e) {}
+    updateCoachQuickBtn();
+    renderHand();
+  };
+}
 
 document.querySelectorAll('.trump-btn').forEach((b) => {
   b.onclick = () => {
@@ -453,17 +452,16 @@ $('soundBtn').onclick = () => {
   if (soundOn) SFX.tap();
 };
 updateSoundBtnIcon();
+updateCoachQuickBtn();
 
 // ---------- Boot ----------
 applyTheme(currentTheme);
-const fanLbl = $('fanModeLabel');
-if (fanLbl) fanLbl.textContent = fanMode ? 'بادبزنی' : 'شبکه‌ای';
 renderStartStats();
 
 const ta = $('toggleAnalysis'), tc = $('toggleCoach');
 ta.checked = analysisOn; tc.checked = coachOn;
 ta.onchange = () => { analysisOn = ta.checked; try { localStorage.setItem('hokm_analysis_v1', analysisOn ? '1' : '0'); } catch (e) {} };
-tc.onchange = () => { coachOn = tc.checked; try { localStorage.setItem('hokm_coach_v1', coachOn ? '1' : '0'); } catch (e) {} };
+tc.onchange = () => { coachOn = tc.checked; updateCoachQuickBtn(); try { localStorage.setItem('hokm_coach_v1', coachOn ? '1' : '0'); } catch (e) {} };
 const saved = storage.loadGame(lz, localStorage);
 if (saved && saved.phase === 'play' && saved.players && saved.players[1] && saved.players[1].hand && saved.players[1].hand.length) {
   const cb = $('continueBtn');

@@ -510,3 +510,28 @@ test('regression: LEADER on 13-card Trick 1 cashes side Ace instead of leading r
   assert.equal(d.card.suit, 'hearts');
   assert.equal(d.card.rank, 'A', 'cashes side Ace A♥ on trick 1');
 });
+
+test('regression: LEADER never leads unprotected King when Ace is still unplayed (leads low instead)', () => {
+  // Trick 3 (not just Trick 1!): A♥ is NOT played yet. Player holds K♥, 6♥, and 8♦.
+  // Must NEVER lead K♥ into an unplayed A♥! Should lead 6♥ (or 8♦) to draw out the A♥ first.
+  const s = state({ trump: 'spades', trumpMode: 'normal', trickNum: 3 });
+  setHand(s, 1, [['hearts', 'K'], ['hearts', '6'], ['diamonds', '8']]);
+  const d = leaderPolicy(s, 1);
+  assert.notEqual(d.card.rank, 'K', 'must never lead unprotected K♥ before A♥ is played');
+
+  // Even if K♥ is a bare singleton, do not lead K♥ when another safe non-trump card exists!
+  const s2 = state({ trump: 'spades', trumpMode: 'normal', trickNum: 4 });
+  setHand(s2, 1, [['hearts', 'K'], ['diamonds', '7'], ['clubs', '4']]);
+  const d2 = leaderPolicy(s2, 1);
+  assert.notEqual(d2.card.rank, 'K', 'must not lead bare singleton K♥ into unplayed A♥');
+
+  // Once A♥ IS played, K♥ is now the Boss of hearts and SHOULD be cashed!
+  const s3 = state({
+    trump: 'spades', trumpMode: 'normal', trickNum: 4,
+    memory: { played: [{ suit: 'hearts', rank: 'A' }], voids: {}, aces: { hearts: true }, kings: {}, signals: [], tricks: [] },
+  });
+  setHand(s3, 1, [['hearts', 'K'], ['hearts', '6'], ['diamonds', '7'], ['clubs', '4'], ['clubs', '2']]);
+  const d3 = leaderPolicy(s3, 1);
+  assert.equal(d3.card.suit, 'hearts');
+  assert.equal(d3.card.rank, 'K', 'once A♥ is played, K♥ is Boss and is cashed');
+});
