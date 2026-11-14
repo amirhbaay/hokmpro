@@ -34,7 +34,7 @@ export function createGame(view, rng = Math.random, storage = null) {
     let p = hakem;
     for (let i = 0; i < 3; i++) { p = NEXT[p]; seq.push(p); }
     seq.push(hakem);
-    return seq; // counter-clockwise ending at hakem
+    return seq;
   }
 
   async function doPlayCard(pid, c, recommended = null) {
@@ -42,7 +42,7 @@ export function createGame(view, rng = Math.random, storage = null) {
     const h = G.players[pid].hand;
     const i = h.findIndex((x) => x.suit === c.suit && x.rank === c.rank);
     if (i > -1) h.splice(i, 1);
-    const necessary = false; // Removed false "لازم!" popup on routine trump leads
+    const necessary = false;
 
     let forcedFollow = false;
     if (G.leadSuit && c.suit === G.leadSuit) {
@@ -244,18 +244,14 @@ export function createGame(view, rng = Math.random, storage = null) {
     }
   }
 
-  // Official Phase 2 Deal: two batches of 4 cards (4 + 4 = 8 cards per player),
-  // preserving exact deck mapping for deterministic replay tests.
   async function dealRest() {
     const order = dealOrder(G.hakem);
     let i = 0;
-    // Batch 1: 4 cards per player
     for (let r = 0; r < 4; r++) {
       for (const pid of order) {
         G.players[pid].hand.push(G.deck[20 + i++]);
       }
     }
-    // Batch 2: 4 cards per player
     for (let r = 0; r < 4; r++) {
       for (const pid of order) {
         G.players[pid].hand.push(G.deck[20 + i++]);
@@ -318,8 +314,6 @@ export function createGame(view, rng = Math.random, storage = null) {
     await dealFirst();
   }
 
-  // Build deterministic Ace-Draw (آس‌کشی) card sequence landing on G.hakem without
-  // consuming extra calls from `rng` (preserves seeded replay byte-for-byte).
   function buildAceDrawSequence(targetHakem) {
     const order = [1, 4, 3, 2];
     const nonAces = [
@@ -330,7 +324,6 @@ export function createGame(view, rng = Math.random, storage = null) {
     ];
     const seq = [];
     let idx = 0;
-    // Deal at least one cycle until we land on targetHakem with an Ace
     for (let step = 0; step < 8; step++) {
       const pid = order[step % 4];
       if (step >= 3 && pid === targetHakem) {

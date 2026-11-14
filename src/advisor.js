@@ -1,5 +1,4 @@
-// src/advisor.js — Analysis + Coach. BOTH reuse the exact Decision Engine
-// (decision.js + positions.js) over the exact knowledge layer (knowledge.js).
+// src/advisor.js — Analysis + Coach.
 import { playable } from './rules.js';
 import { decide, explain } from './decision.js';
 import { decideByPosition } from './positions.js';

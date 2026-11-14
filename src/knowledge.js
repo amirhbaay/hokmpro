@@ -1,11 +1,4 @@
-// src/knowledge.js — CardMemory + Knowledge layer (the ONLY information source for
-// the AI Decision Engine, the Analysis feature and the Coach feature).
-//
-// HARD OBSERVABILITY RULE: every value derives from what a human at the seat could
-// write on paper — played cards, proven voids, hand sizes, trick number, signals,
-// and the viewer's OWN hand. Hidden cards are never consulted: an unaccounted card
-// belongs to a POSSIBLE-HOLDER SET with uniform internal weight 1/|holders|, and a
-// void is permanent once proven (doPlayCard writes memory.voids; we only read it).
+// src/knowledge.js — CardMemory + Knowledge layer
 import { SUITS, RANKS, cardVal, cmpCards, trickWinner } from './rules.js';
 
 export const SEATS = [1, 2, 3, 4];
@@ -97,7 +90,6 @@ export function pVoidInSuit(M, p, suit) {
   const rng = suitCountRange(M, p, suit);
   if (rng.hi === 0) return 1;
   if (rng.lo > 0) return 0;
-  // For synthetic partial-hand unit tests where viewer holds fewer cards than trickNum implies
   if (M.own.length < M.handSizes[M.viewer]) return 1;
   let seenInSuit = 0;
   for (const c of M.played) if (c.suit === suit) seenInSuit++;

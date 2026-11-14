@@ -87,7 +87,6 @@
 
   <!-- ============ SPA VIEW 2: MOBILE-FIRST ARENA ============ -->
   <main class="game-wrapper hidden" id="gameWrapper">
-    <!-- Single Ultra-Slim Unified Top Score & Status Strip (frees vertical space for huge cards) -->
     <header class="header glass">
       <div class="scores">
         <div class="score-box us">ما <b id="scoreA">0</b></div>
@@ -102,13 +101,11 @@
       </div>
     </header>
 
-    <!-- Official Ace-Draw Ceremony Banner (Non-blocking overlay) -->
     <div class="ace-draw-banner glass-strong hidden" id="aceDrawBanner">
       <div class="ace-draw-title"><svg class="ic"><use href="#i-crown"/></svg> <span id="aceDrawText">مراسم آس‌کشی تعیین حاکم اول</span></div>
       <div class="ace-draw-cards" id="aceDrawCards"></div>
     </div>
 
-    <!-- Cross-Table 4-Player Arena -->
     <div class="arena-stage">
       <!-- NORTH SEAT: Partner (Player 3) -->
       <div class="seat-node seat-north opponent" id="player3Box">
@@ -126,9 +123,9 @@
         </div>
       </div>
 
-      <!-- MIDDLE ROW: West Seat (Player 2) + Large Felt Table + East Seat (Player 4) -->
+      <!-- MIDDLE ROW (direction: ltr so Player 2 is physical LEFT and Player 4 is physical RIGHT!) -->
       <div class="table-middle-row">
-        <!-- WEST SEAT: Opponent 1 (Player 2) -->
+        <!-- WEST SEAT (Physical Left): Opponent 1 (Player 2) -->
         <div class="seat-node seat-west opponent" id="player2Box">
           <div class="opponent-avatar enemy">
             <svg class="ic"><use href="#i-robot"/></svg>
@@ -140,7 +137,7 @@
           <span class="void-pills" id="voids2"></span>
         </div>
 
-        <!-- CENTER ROYAL FELT TABLE (Enlarged for big table cards) -->
+        <!-- CENTER ROYAL FELT TABLE -->
         <div class="play-area">
           <div class="table neo">
             <svg class="table-carpet-svg" viewBox="0 0 240 240" aria-hidden="true">
@@ -161,7 +158,7 @@
           </div>
         </div>
 
-        <!-- EAST SEAT: Opponent 2 (Player 4) -->
+        <!-- EAST SEAT (Physical Right): Opponent 2 (Player 4) -->
         <div class="seat-node seat-east opponent" id="player4Box">
           <div class="opponent-avatar enemy">
             <svg class="ic"><use href="#i-robot"/></svg>
@@ -175,7 +172,7 @@
       </div>
     </div>
 
-    <!-- SOUTH DOCK: Large Eye-Friendly Player Hand -->
+    <!-- SOUTH DOCK: Guaranteed 2-Row 7-Column Player Hand -->
     <section class="player-section glass" id="player1Box">
       <div class="player-bar">
         <div class="player-info">
@@ -192,11 +189,11 @@
         </div>
       </div>
 
-      <div class="hand fan-mode" id="handCards"></div>
+      <div class="hand grid-mode" id="handCards"></div>
       <div class="coach-bar hidden" id="coachBar" aria-live="polite"></div>
     </section>
 
-    <!-- BOTTOM NAVIGATION DOCK (منوی پایین صفحه برای دست قبلی، تحلیل، چیدمان، راهنما و تنظیمات) -->
+    <!-- BOTTOM NAVIGATION DOCK -->
     <nav class="bottom-nav glass-strong" aria-label="منوی پایین بازی">
       <button class="bnav-btn" id="lastTrickBtn" type="button" title="دست قبلی و آنالیز">
         <svg class="ic"><use href="#i-history"/></svg>
@@ -220,7 +217,6 @@
   <div class="winner-popup" id="winnerPopup"></div>
 
   <!-- ============ MODALS & BOTTOM-SHEET DRAWERS ============ -->
-  <!-- 1. Trump Selection Modal (with Large Preview Cards) -->
   <div class="modal" id="trumpModal">
     <div class="modal-box glass-strong">
       <h2 class="modal-title"><svg class="ic"><use href="#i-crown"/></svg> شما حاکم هستید — تعیین حکم</h2>
@@ -238,7 +234,6 @@
     </div>
   </div>
 
-  <!-- 2. Round Summary Modal -->
   <div class="modal" id="roundModal">
     <div class="modal-box glass-strong">
       <h2 class="modal-title" id="roundTitle">پایان دست</h2>
@@ -247,7 +242,6 @@
     </div>
   </div>
 
-  <!-- 3. Match End Modal -->
   <div class="modal" id="endModal">
     <div class="modal-box glass-strong">
       <h2 class="modal-title" id="endTitle">پایان مسابقه</h2>
@@ -258,7 +252,6 @@
     </div>
   </div>
 
-  <!-- 4. Kot / Bam Decision Modal -->
   <div class="modal" id="kotModal">
     <div class="modal-box glass-strong">
       <h2 class="modal-title"><svg class="ic"><use href="#i-trophy"/></svg> کوت! (۷ بر ۰)</h2>
@@ -271,7 +264,6 @@
     </div>
   </div>
 
-  <!-- 5. Last Trick & Tactical Analysis Bottom-Sheet Drawer -->
   <div class="modal" id="lastTrickModal">
     <div class="modal-box glass-strong">
       <h2 class="modal-title"><svg class="ic"><use href="#i-history"/></svg> بررسی دست قبلی و آنالیز تاکتیکی</h2>
@@ -280,7 +272,6 @@
     </div>
   </div>
 
-  <!-- 6. Settings & Theme Bottom-Sheet Drawer (تنظیمات در منوی پایین) -->
   <div class="modal" id="settingsModal">
     <div class="modal-box glass-strong">
       <h2 class="modal-title"><svg class="ic"><use href="#i-settings"/></svg> تنظیمات بازی و ظاهر</h2>
@@ -320,7 +311,6 @@
     </div>
   </div>
 
-  <!-- 7. Official Rules & 4-Position Strategy Guide Modal -->
   <div class="modal" id="guideModal">
     <div class="modal-box glass-strong guide-modal-box">
       <h2 class="modal-title"><svg class="ic"><use href="#i-book"/></svg> دانشنامه رسمی حکم و استراتژی ۴ موقعیت</h2>

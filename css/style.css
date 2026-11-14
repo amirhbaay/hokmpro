@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Hokm Royal SPA — Classic Crystal-Clear Cards + Bottom-Nav Design System
+   Hokm Royal SPA — Precision Mobile-First Layout (Zero Overlap, 2-Row 7-Col Hand)
    Dual Themes:
      1. theme-navy    : Royal Persian Lapis Navy & Gold (لاجوردی سلطنتی)
      2. theme-emerald : Casino Emerald Velvet & Gold (سبز زمردی کازینویی)
@@ -11,14 +11,14 @@
   --bg-0: #060b16;
   --bg-1: #0c172c;
   --bg-2: #142544;
-  --glass: rgba(16, 30, 58, 0.78);
-  --glass-strong: rgba(12, 23, 45, 0.94);
-  --glass-edge: rgba(242, 193, 78, 0.25);
+  --glass: rgba(16, 30, 58, 0.82);
+  --glass-strong: rgba(12, 23, 45, 0.95);
+  --glass-edge: rgba(242, 193, 78, 0.26);
   --hairline: rgba(148, 180, 255, 0.16);
 
   --ink: #f4f7ff;
-  --ink-muted: rgba(244, 247, 255, 0.78);
-  --ink-faint: rgba(244, 247, 255, 0.5);
+  --ink-muted: rgba(244, 247, 255, 0.8);
+  --ink-faint: rgba(244, 247, 255, 0.52);
 
   --neo: #101d36;
   --neo-light: rgba(255, 255, 255, 0.06);
@@ -30,7 +30,7 @@
   --table-grad-1: #153963;
   --table-grad-2: #0b223d;
   --table-grad-3: #061324;
-  --table-rim: rgba(242, 193, 78, 0.5);
+  --table-rim: rgba(242, 193, 78, 0.52);
 
   --gold: #f2c14e;
   --gold-deep: #b8860b;
@@ -46,14 +46,14 @@
   --suit-clubs: #6ee7b7;
 
   --card-face: #ffffff;
-  --card-face-2: #e9f0fc;
-  --card-ink-dark: #121f38;
-  --card-ink-red: #c41e3a;
+  --card-face-2: #eef3fc;
+  --card-ink-dark: #111e38;
+  --card-ink-red: #d41936;
 
   --shadow-lg: 0 20px 50px rgba(2, 6, 18, 0.75);
-  --shadow-md: 0 8px 20px rgba(2, 6, 18, 0.55);
+  --shadow-md: 0 6px 16px rgba(2, 6, 18, 0.5);
 
-  --radius-lg: 20px;
+  --radius-lg: 18px;
   --radius-md: 14px;
   --radius-sm: 10px;
 
@@ -67,7 +67,7 @@ body.theme-emerald {
   --bg-0: #04120c;
   --bg-1: #092218;
   --bg-2: #103828;
-  --glass: rgba(10, 36, 25, 0.8);
+  --glass: rgba(10, 36, 25, 0.82);
   --glass-strong: rgba(7, 26, 18, 0.95);
   --glass-edge: rgba(245, 200, 76, 0.3);
   --hairline: rgba(110, 231, 183, 0.18);
@@ -125,6 +125,13 @@ body {
 
 .hidden { display: none !important; }
 .ic { width: 1.15em; height: 1.15em; flex-shrink: 0; }
+
+/* Inline SVG Suit Icons (prevents iOS from substituting dark Apple emojis!) */
+.suit-svg { width: 1.05em; height: 1.05em; vertical-align: middle; display: inline-block; }
+.suit-icon-spades { color: var(--suit-spades); }
+.suit-icon-hearts { color: var(--suit-hearts); }
+.suit-icon-diamonds { color: var(--suit-diamonds); }
+.suit-icon-clubs { color: var(--suit-clubs); }
 
 /* ---------- Surfaces ---------- */
 .glass {
@@ -266,7 +273,7 @@ body {
 .game-wrapper {
   height: 100dvh;
   width: 100%;
-  max-width: 560px;
+  max-width: 520px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -279,34 +286,34 @@ body {
 /* Unified Ultra-Slim Top Header Bar */
 .header {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 5px 10px; flex-shrink: 0; gap: 6px;
+  padding: 4px 8px; flex-shrink: 0; gap: 4px;
 }
-.scores { display: flex; gap: 5px; align-items: center; }
+.scores { display: flex; gap: 4px; align-items: center; }
 .score-box {
-  padding: 3px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 800;
+  padding: 3px 9px; border-radius: 999px; font-size: 0.78rem; font-weight: 800;
   background: var(--glass-strong); border: 1px solid transparent;
 }
-.score-box b { font-size: 0.96rem; }
+.score-box b { font-size: 0.92rem; }
 .score-box.us { border-color: var(--aqua); color: var(--aqua); }
 .score-box.them { border-color: var(--ruby); color: var(--ruby); }
 
 .info-bar {
   display: flex; align-items: center; gap: 4px;
-  font-size: 0.76rem; font-weight: 800;
+  font-size: 0.75rem; font-weight: 800;
 }
 .info-item {
-  display: flex; align-items: center; gap: 3px; color: var(--ink-muted);
+  display: flex; align-items: center; gap: 4px; color: var(--ink-muted);
   padding: 3px 7px; border-radius: 8px;
-  background: rgba(0, 0, 0, 0.28);
+  background: rgba(0, 0, 0, 0.32);
 }
-.info-item b { color: var(--ink); font-size: 0.86rem; }
+.info-item b { color: var(--ink); font-size: 0.85rem; display: inline-flex; align-items: center; gap: 2px; }
 .icon-us b { color: var(--aqua); }
 .icon-them b { color: var(--ruby); }
 .icon-trump b { color: var(--gold); font-size: 0.95rem; }
 
 /* Ace-Draw Ceremony Banner */
 .ace-draw-banner {
-  position: absolute; top: 48px; left: 50%; transform: translateX(-50%);
+  position: absolute; top: 44px; left: 50%; transform: translateX(-50%);
   z-index: 45; width: min(94%, 390px);
   padding: 8px 12px; border-radius: var(--radius-md);
   display: flex; flex-direction: column; align-items: center; gap: 6px;
@@ -314,7 +321,7 @@ body {
   box-shadow: var(--shadow-lg), 0 0 24px rgba(242, 193, 78, 0.25);
   animation: riseIn 0.25s ease;
 }
-.ace-draw-title { font-size: 0.8rem; font-weight: 900; color: var(--gold); display: flex; align-items: center; gap: 6px; }
+.ace-draw-title { font-size: 0.78rem; font-weight: 900; color: var(--gold); display: flex; align-items: center; gap: 6px; }
 .ace-draw-cards { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
 .ace-mini-chip {
   display: flex; flex-direction: column; align-items: center;
@@ -330,7 +337,7 @@ body {
 /* ---------- Cross-Table 4-Player Arena Stage ---------- */
 .arena-stage {
   flex: 1;
-  min-height: 0;
+  min-height: 195px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -346,52 +353,58 @@ body {
   flex-direction: row;
   background: var(--glass);
   border: 1px solid var(--glass-edge);
-  padding: 3px 10px 3px 8px;
+  padding: 2px 10px 2px 8px;
   border-radius: 999px;
 }
 .seat-meta { display: flex; align-items: center; gap: 6px; }
 .seat-badges { display: flex; align-items: center; gap: 4px; }
 
+/* CRITICAL FIX: direction: ltr on .table-middle-row so that:
+   - First child (#player2Box = حریف ۱) is on physical LEFT (matching #slot2 left!)
+   - Last child  (#player4Box = حریف ۲) is on physical RIGHT (matching #slot4 right!) */
 .table-middle-row {
+  direction: ltr;
   flex: 1;
   width: 100%;
-  min-height: 0;
+  min-height: 165px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 2px;
+  gap: 3px;
 }
 
 .seat-west, .seat-east {
+  direction: rtl;
   flex-direction: column;
-  width: 50px;
+  width: 46px;
   flex-shrink: 0;
   text-align: center;
   gap: 2px;
 }
 
 .opponent-avatar, .player-avatar {
-  width: 36px; height: 36px; border-radius: 50%;
+  width: 34px; height: 34px; border-radius: 50%;
   display: grid; place-items: center; position: relative;
   background: var(--neo); box-shadow: var(--neo-raise);
-  color: var(--ink-muted); font-size: 1rem;
+  color: var(--ink-muted); font-size: 0.95rem;
   border: 1.5px solid rgba(255,255,255,0.12);
   transition: box-shadow 0.22s ease, transform 0.22s ease;
 }
 .opponent-avatar.partner { color: var(--aqua); border-color: rgba(60, 230, 203, 0.4); }
 .opponent-avatar.enemy { color: var(--ruby); border-color: rgba(255, 107, 129, 0.4); }
-.opponent-name { font-size: 0.7rem; font-weight: 800; color: var(--ink-muted); white-space: nowrap; }
+.opponent-name { font-size: 0.68rem; font-weight: 800; color: var(--ink-muted); white-space: nowrap; }
 
 .card-count-pill {
-  font-size: 0.68rem; font-weight: 900;
+  font-size: 0.64rem; font-weight: 900;
   padding: 1px 5px; border-radius: 999px;
   background: rgba(242, 193, 78, 0.15);
   border: 1px solid rgba(242, 193, 78, 0.35);
   color: var(--gold);
+  white-space: nowrap;
 }
 .void-pills { display: inline-flex; gap: 2px; flex-wrap: wrap; justify-content: center; }
 .void-tag {
-  font-size: 0.65rem; line-height: 1; padding: 1px 4px;
+  font-size: 0.62rem; line-height: 1; padding: 1px 3px;
   border-radius: 4px; background: rgba(255, 107, 129, 0.2);
   color: var(--ruby); font-weight: 900;
 }
@@ -402,33 +415,35 @@ body {
 }
 
 .crown-badge {
-  position: absolute; top: -6px; right: -6px; color: var(--gold);
-  background: var(--neo); width: 18px; height: 18px; border-radius: 50%;
+  position: absolute; top: -6px; right: -5px; color: var(--gold);
+  background: var(--neo); width: 17px; height: 17px; border-radius: 50%;
   display: grid; place-items: center; box-shadow: var(--neo-raise);
   border: 1px solid var(--gold);
 }
 .trump-indicator {
   position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
   background: linear-gradient(135deg, var(--gold), var(--gold-deep)); color: #1f1503;
-  font-size: 0.64rem; font-weight: 900; padding: 1px 5px; border-radius: 5px;
+  font-size: 0.62rem; font-weight: 900; padding: 1px 5px; border-radius: 5px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  display: inline-flex; align-items: center; justify-content: center;
 }
+.trump-indicator .suit-svg { width: 0.85em; height: 0.85em; color: #1f1503 !important; }
 
-/* ---------- Felt Table ---------- */
+/* ---------- Felt Table with 4 Non-Overlapping Zones ---------- */
 .play-area {
   flex: 1; height: 100%; display: flex; align-items: center; justify-content: center; min-width: 0;
 }
 .table {
-  width: 100%; max-width: 290px; height: 100%; max-height: 235px; position: relative;
-  border-radius: 36px;
+  width: 100%; max-width: 320px; height: 100%; min-height: 172px; max-height: 235px; position: relative;
+  border-radius: 30px;
   background:
     radial-gradient(circle at 50% 48%, rgba(242, 193, 78, 0.12), transparent 60%),
     linear-gradient(160deg, var(--table-grad-1) 0%, var(--table-grad-2) 58%, var(--table-grad-3) 100%);
   box-shadow:
     inset 0 0 0 2px rgba(255, 255, 255, 0.12),
-    inset 0 0 0 7px rgba(6, 12, 22, 0.68),
-    inset 0 0 0 8.5px var(--table-rim),
-    inset 0 12px 28px rgba(0,0,0,0.6),
+    inset 0 0 0 6px rgba(6, 12, 22, 0.68),
+    inset 0 0 0 7.5px var(--table-rim),
+    inset 0 10px 24px rgba(0,0,0,0.6),
     var(--shadow-md);
   display: flex; align-items: center; justify-content: center;
   overflow: hidden;
@@ -438,138 +453,169 @@ body {
   color: var(--gold); pointer-events: none;
 }
 .table-center-emblem {
-  font-size: 2.5rem; color: var(--gold); opacity: 0.16;
+  font-size: 2.2rem; color: var(--gold); opacity: 0.18;
   pointer-events: none; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
 }
+.table-center-emblem .suit-svg { width: 42px; height: 42px; }
 
+/* 4 Non-Overlapping Card Slots on Table:
+   Top (Partner) & Bottom (You) are slightly offset horizontally or sized so they NEVER collide! */
 .card-slot { position: absolute; display: flex; align-items: center; justify-content: center; z-index: 4; }
-.card-slot.top { top: 4%; left: 50%; transform: translateX(-50%); }
-.card-slot.bottom { bottom: 4%; left: 50%; transform: translateX(-50%); }
-.card-slot.left { left: 6%; top: 50%; transform: translateY(-50%); }
-.card-slot.right { right: 6%; top: 50%; transform: translateY(-50%); }
+.card-slot.top { top: 5px; left: 50%; transform: translateX(-50%); }
+.card-slot.bottom { bottom: 5px; left: 50%; transform: translateX(-50%); }
+.card-slot.left { left: 10px; top: 50%; transform: translateY(-50%); }
+.card-slot.right { right: 10px; top: 50%; transform: translateY(-50%); }
 
-/* ---------- South Player Section & Classic Clear Hand ---------- */
+/* ---------- South Player Section & Guaranteed 2-Row 7-Column Hand ---------- */
 .player-section {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  padding: 8px 8px 10px;
+  gap: 4px;
+  padding: 6px 6px 8px;
   border-radius: var(--radius-lg);
 }
 .player-bar {
-  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  display: flex; align-items: center; justify-content: space-between; gap: 6px;
   padding: 0 4px;
 }
-.player-info { display: flex; align-items: center; gap: 8px; }
-.player-avatar { width: 30px; height: 30px; color: var(--gold); border-color: rgba(242, 193, 78, 0.4); }
+.player-info { display: flex; align-items: center; gap: 6px; }
+.player-avatar { width: 26px; height: 26px; font-size: 0.85rem; color: var(--gold); border-color: rgba(242, 193, 78, 0.4); }
 .player-title-wrap { display: flex; align-items: center; gap: 8px; }
-.player-name { font-weight: 900; font-size: 0.86rem; color: var(--gold); }
-.turn-hint { font-size: 0.78rem; color: var(--ink-muted); font-weight: 700; }
+.player-name { font-weight: 900; font-size: 0.82rem; color: var(--gold); }
+.turn-hint { font-size: 0.74rem; color: var(--ink-muted); font-weight: 700; }
 .player-section.active .turn-hint { color: #ffe07d; font-weight: 900; }
 
-/* Hand Container: Normal Non-Overlapping Grid (crystal clear, zero overlap!) */
+/* Hand Container: Guaranteed 7-Column Grid so 13 cards ALWAYS fit in at most 2 rows (7 + 6) with ZERO clipping! */
 .hand {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  align-content: flex-start;
-  gap: 7px;
-  padding: 6px 4px;
-  max-height: 42dvh;
-  overflow-y: auto;
-  scrollbar-width: thin;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+  padding: 4px 2px 2px;
+  width: 100%;
+  justify-items: center;
+  align-items: center;
 }
 .hand.fan-mode {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 4px;
 }
+.hand.fan-mode .card {
+  width: calc((100% - 28px) / 7);
+  min-width: 44px;
+  max-width: 64px;
+}
 
-/* ---------- CLASSIC, LARGE, CRYSTAL-CLEAR PLAYING CARDS (حالت معمولی و کاملاً واضح) ---------- */
+/* ---------- BRIGHT, CLASSIC, SVG-ENHANCED PLAYING CARDS ---------- */
 .card {
-  width: 64px;
-  height: 98px;
-  border-radius: 12px;
-  background: linear-gradient(160deg, var(--card-face), var(--card-face-2));
-  box-shadow: var(--shadow-md), inset 0 0 0 1.5px rgba(255, 255, 255, 0.9);
+  width: 100%;
+  max-width: 66px;
+  aspect-ratio: 0.67;
+  height: auto;
+  min-height: 72px;
+  border-radius: 10px;
+  background: linear-gradient(165deg, #ffffff 0%, #f1f5fd 100%);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.42), inset 0 0 0 1px rgba(255, 255, 255, 0.95);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  padding: 6px 7px;
+  padding: 3px 5px;
   position: relative;
   color: var(--card-ink-dark);
-  flex-shrink: 0;
-  transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.16s ease, filter 0.18s ease;
+  transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.16s ease, opacity 0.16s ease;
   cursor: pointer;
+  overflow: hidden;
 }
 
 .card .card-rank {
-  font-size: 1.2rem;
+  font-size: 1.05rem;
   font-weight: 900;
   align-self: flex-start;
   line-height: 1;
+  z-index: 2;
+  letter-spacing: -0.5px;
 }
 .card .card-rank.bottom {
   align-self: flex-end;
   transform: rotate(180deg);
 }
 .card .card-suit-center {
-  font-size: 2.15rem;
-  line-height: 1;
+  width: 66%;
+  height: 54%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.card-center-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
 }
 
 .card.suit-hearts .card-rank,
 .card.suit-diamonds .card-rank {
-  color: var(--card-ink-red, #c41e3a);
+  color: #d41936;
 }
-.card.suit-hearts .card-suit-center,
-.card.suit-diamonds .card-suit-center {
-  color: #d1223e;
-}
-.card.suit-spades .card-suit-center,
-.card.suit-clubs .card-suit-center {
-  color: #14223d;
+.card.suit-spades .card-rank,
+.card.suit-clubs .card-rank {
+  color: #111e38;
 }
 
+/* NEVER turn cards dark grey when waiting for AI turn!
+   Only dim unplayable cards slightly when it IS the human's turn (.must-follow-dim) */
 .card.disabled {
-  filter: grayscale(0.5) brightness(0.62);
   cursor: default;
-  pointer-events: none;
+}
+.card.unplayable-turn {
+  opacity: 0.42;
+  transform: scale(0.95);
+}
+.card.playable-turn {
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.5), 0 0 0 1.5px rgba(242, 193, 78, 0.55);
 }
 .card:not(.disabled):hover {
-  transform: translateY(-6px);
+  transform: translateY(-5px);
 }
 .card.selected {
-  transform: translateY(-13px);
-  box-shadow: 0 0 0 2.5px var(--gold), 0 14px 28px rgba(242, 193, 78, 0.45), var(--shadow-md);
+  transform: translateY(-10px) scale(1.06) !important;
+  z-index: 25 !important;
+  box-shadow: 0 0 0 2.5px var(--gold), 0 12px 24px rgba(242, 193, 78, 0.55) !important;
 }
 .card.trump::after {
   content: '';
   position: absolute;
-  inset: 3px;
-  border-radius: 9px;
-  border: 2px solid rgba(184, 134, 11, 0.75);
+  inset: 2px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(212, 155, 39, 0.82);
   pointer-events: none;
-  box-shadow: 0 0 8px rgba(242, 193, 78, 0.35), inset 0 0 8px rgba(242, 193, 78, 0.2);
+  box-shadow: inset 0 0 6px rgba(242, 193, 78, 0.22);
 }
 
-/* Classic Table Cards */
+/* Table Cards: Sized so Top + Bottom NEVER overlap inside the table! */
 .card.table-card {
-  width: 58px;
-  height: 88px;
+  width: 52px;
+  height: 76px;
+  min-height: 76px;
+  max-width: 52px;
+  aspect-ratio: auto;
   cursor: default;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
 }
-.card.table-card .card-rank { font-size: 1.08rem; }
-.card.table-card .card-suit-center { font-size: 1.85rem; }
-.card.enter { animation: cardIn 0.25s cubic-bezier(0.22, 1, 0.36, 1); }
-@keyframes cardIn { from { opacity: 0; transform: translateY(14px) scale(0.9); } }
+.card.table-card .card-rank { font-size: 0.96rem; }
+.card.enter { animation: cardIn 0.24s cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes cardIn { from { opacity: 0; transform: translateY(10px) scale(0.88); } }
 
 /* ---------- Bottom Navigation Bar (منوی پایین صفحه) ---------- */
 .bottom-nav {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 6px;
-  padding: 6px 8px;
+  padding: 5px 8px;
   border-radius: var(--radius-md);
   flex-shrink: 0;
 }
@@ -579,17 +625,17 @@ body {
   align-items: center;
   justify-content: center;
   gap: 2px;
-  padding: 5px 4px;
+  padding: 4px 4px;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   background: rgba(255, 255, 255, 0.03);
   color: var(--ink-muted);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 800;
   cursor: pointer;
   transition: all 0.16s ease;
 }
-.bnav-btn .ic { width: 1.2rem; height: 1.2rem; color: var(--gold); }
+.bnav-btn .ic { width: 1.15rem; height: 1.15rem; color: var(--gold); }
 .bnav-btn:active { transform: scale(0.95); background: rgba(242, 193, 78, 0.14); }
 
 /* Settings Drawer List */
@@ -628,15 +674,15 @@ body {
 /* ---------- Coach & Analysis ---------- */
 .coach-bar {
   display: flex; flex-direction: column; gap: 2px;
-  background: rgba(0, 0, 0, 0.38);
+  background: rgba(0, 0, 0, 0.42);
   border: 1px solid rgba(242, 193, 78, 0.35);
-  border-radius: var(--radius-sm); padding: 6px 10px;
-  font-size: 0.78rem; color: var(--ink-muted); line-height: 1.45;
+  border-radius: var(--radius-sm); padding: 5px 8px;
+  font-size: 0.74rem; color: var(--ink-muted); line-height: 1.4;
 }
-.coach-line b { color: var(--gold); font-size: 0.86rem; }
+.coach-line b { color: var(--gold); font-size: 0.82rem; }
 .coach-line.alt { opacity: 0.8; }
-.card.coach-best { outline: 3px solid var(--gold); outline-offset: 2px; box-shadow: var(--shadow-md), 0 0 18px rgba(242,193,78,0.45); }
-.card.coach-alt { outline: 2px dashed var(--aqua); outline-offset: 2px; }
+.card.coach-best { outline: 2.5px solid var(--gold); outline-offset: 1px; }
+.card.coach-alt { outline: 2px dashed var(--aqua); outline-offset: 1px; }
 
 .grade { font-weight: 900; padding: 2px 8px; border-radius: 6px; font-size: 0.78rem; }
 .grade.good { color: #082217; background: var(--aqua); }
@@ -647,14 +693,15 @@ body {
 .tactics { color: var(--aqua); font-weight: 800; font-size: 0.75rem; }
 .outcome-line { font-size: 0.86rem; color: var(--gold); text-align: center; font-weight: 800; }
 
-/* ---------- Winner Popup ---------- */
+/* ---------- Winner Popup: Centered cleanly on the Table (Never covers player bar!) ---------- */
 .winner-popup {
-  position: fixed; top: 38%; left: 50%; transform: translate(-50%, -50%) scale(0.9);
+  position: fixed; top: 31%; left: 50%; transform: translate(-50%, -50%) scale(0.9);
   background: var(--glass-strong);
-  border: 2px solid var(--gold); border-radius: 999px;
-  padding: 10px 24px; font-weight: 900; font-size: 1.05rem; color: var(--gold); z-index: 50;
-  opacity: 0; pointer-events: none; transition: opacity 0.2s ease, transform 0.2s ease;
+  border: 1.5px solid var(--gold); border-radius: 999px;
+  padding: 7px 18px; font-weight: 900; font-size: 0.92rem; color: var(--gold); z-index: 50;
+  opacity: 0; pointer-events: none; transition: opacity 0.18s ease, transform 0.18s ease;
   box-shadow: var(--shadow-lg);
+  white-space: nowrap;
 }
 .winner-popup.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
@@ -685,15 +732,15 @@ body {
   display: flex; flex-direction: column; align-items: center; gap: 4px;
 }
 .trump-btn.special { font-size: 0.82rem; }
-.trump-btn .pip { font-size: 1.6rem; line-height: 1; }
+.trump-btn .pip { font-size: 1.6rem; line-height: 1; display: inline-flex; }
 .trump-btn.suit-spades .pip { color: var(--suit-spades); }
 .trump-btn.suit-hearts .pip { color: var(--suit-hearts); }
 .trump-btn.suit-diamonds .pip { color: var(--suit-diamonds); }
 .trump-btn.suit-clubs .pip { color: var(--suit-clubs); }
 
-/* Large 5-Card Trump Selection Preview */
-.preview-cards { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
-.preview-cards .card { width: 68px; height: 102px; cursor: default; }
+/* 5-Card Trump Selection Preview */
+.preview-cards { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; width: 100%; }
+.preview-cards .card { width: 58px; height: 86px; min-height: 86px; aspect-ratio: auto; cursor: default; }
 
 .history-list { width: 100%; display: flex; flex-direction: column; gap: 6px; max-height: 24vh; overflow-y: auto; }
 .history-row {
@@ -713,7 +760,7 @@ body {
 }
 .last-trick-row.winner { outline: 2px solid var(--gold); }
 .last-trick-name { font-weight: 900; font-size: 0.92rem; color: var(--ink); }
-.last-trick-row .card { width: 54px; height: 82px; }
+.last-trick-row .card { width: 50px; height: 74px; min-height: 74px; aspect-ratio: auto; }
 .analysis-row {
   display: flex; align-items: center; justify-content: flex-start; flex-wrap: wrap;
   gap: 6px; font-size: 0.8rem; color: var(--ink-muted); padding: 2px 6px; text-align: right;
@@ -732,17 +779,14 @@ body {
 .guide-card p { font-size: 0.82rem; line-height: 1.65; color: var(--ink-muted); }
 .guide-card b { color: var(--ink); }
 
-/* Responsive Scaling */
-@media (min-width: 400px) {
-  .card { width: 68px; height: 104px; }
-  .card .card-rank { font-size: 1.28rem; }
-  .card .card-suit-center { font-size: 2.3rem; }
-  .card.table-card { width: 62px; height: 92px; }
+@media (min-width: 410px) {
+  .card .card-rank { font-size: 1.15rem; }
+  .card.table-card { width: 56px; height: 82px; min-height: 82px; max-width: 56px; }
 }
 @media (min-width: 720px) {
   body { display: flex; align-items: center; justify-content: center; }
   .game-wrapper {
-    max-width: 540px; height: 96dvh; max-height: 940px;
+    max-width: 520px; height: 96dvh; max-height: 920px;
     border-radius: var(--radius-lg);
     padding: 10px 14px;
     box-shadow: var(--shadow-lg);

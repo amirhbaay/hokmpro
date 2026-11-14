@@ -1,4 +1,17 @@
 // tests/browser-smoke.test.js — real-browser smoke test of the built bundle.
+//
+// Loads index.html in headless Chrome/Edge over the DevTools protocol and plays full
+// games to completion through the live DOM, capturing uncaught exceptions, console
+// errors and failed asset loads. Skips gracefully when no Chromium browser is found.
+//
+// Presentation pacing (the AI's between-card delays) is collapsed to instant via a
+// pre-document setTimeout wrapper — the same technique tests/app-smoke.test.js uses
+// in its VM sandbox. The shipped bundle itself is never modified.
+// browser smoke: real Chromium plays a full, seeded game through the live DOM.
+//
+// ?seed=N pins the whole game (hakem, deal, every AI decision) so the flow is
+// reproducible: seed 7 makes the human the hakem, which forces the trump picker
+// modal onto the exercised path. A game ends when a team reaches score 7.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -27,7 +40,7 @@ function findBrowser() {
   for (const c of CANDIDATES) {
     try {
       if (fs.existsSync(c) && fs.statSync(c).isFile()) return c;
-    } catch { /* ignore */ }
+    } catch { /* permission/encoding quirk */ }
   }
   return null;
 }
@@ -68,6 +81,7 @@ const DRIVER = `(async () => {
   const log = [];
   document.getElementById('startBtn').click();
   let guard = 0, humanPlays = 0;
+  // load → new game → deal → choose trump → play trick → next trick → rounds → game end.
   while (guard++ < 50000) {
     if (document.getElementById('endModal').classList.contains('show')) { log.push('END'); break; }
     if (document.getElementById('kotModal').classList.contains('show')) {
@@ -85,8 +99,10 @@ const DRIVER = `(async () => {
     const playable = Array.from(hand.children)
       .filter((el) => !el.classList.contains('disabled') && el.onclick);
     if (playable.length) {
+      // select, then confirm — the same two-click gesture the UI requires
       playable[0].click(); playable[0].click(); humanPlays++; continue;
     }
+    // not our turn: yield to the timer-driven AI chain
     await new Promise((r) => setTimeout(r, 5));
   }
   return {
@@ -102,6 +118,8 @@ const DRIVER = `(async () => {
 
 async function launchAndPlay(exe, bundleUrl) {
   const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'hokm-smoke-'));
+  // Bind and release a TCP port, then hand it to the browser: this Chrome build does
+  // not write DevToolsActivePort, so port 0 + a port-file poll would hang.
   const port = await new Promise((resolve, reject) => {
     const srv = createServer();
     srv.unref();
@@ -114,6 +132,7 @@ async function launchAndPlay(exe, bundleUrl) {
     '--remote-debugging-port=' + port, '--user-data-dir=' + profile, 'about:blank',
   ], { stdio: 'ignore', windowsHide: true });
 
+  // Never leak a headless browser if the test times out or throws.
   const killBrowser = () => { try { proc.kill('SIGKILL'); } catch { /* */ } };
   const watchdog = setTimeout(killBrowser, 90000);
   watchdog.unref();
@@ -138,6 +157,8 @@ async function launchAndPlay(exe, bundleUrl) {
   await cdp.send('Runtime.enable', {}, sessionId);
   await cdp.send('Log.enable', {}, sessionId);
   await cdp.send('Page.enable', {}, sessionId);
+  // Collapse presentation delays to instant so a full multi-round game finishes in
+  // seconds. Injected before navigation, so it applies to the bundle's own timers.
   await cdp.send('Page.addScriptToEvaluateOnNewDocument', {
     source: 'const o = window.setTimeout; window.setTimeout = (fn) => o(fn, 0);',
   }, sessionId);
@@ -152,6 +173,8 @@ async function launchAndPlay(exe, bundleUrl) {
   }
   const run = res.result.value;
 
+  // Every error class CDP surfaces: uncaught exceptions, console.error, and Log entries
+  // (the latter include failed resource loads such as missing fonts/icons).
   const exceptions = cdp.events.filter((e) => e.method === 'Runtime.exceptionThrown')
     .map((e) => e.params.exceptionDetails.exception?.description || e.params.exceptionDetails.text);
   const consoleErrors = cdp.events.filter((e) => e.method === 'Runtime.consoleAPICalled' && e.params.type === 'error')
@@ -170,13 +193,12 @@ async function launchAndPlay(exe, bundleUrl) {
 }
 
 const exe = findBrowser();
-const hasBundle = fs.existsSync(BUNDLE);
-const hasWs = typeof WebSocket !== 'undefined';
-const SEED = 7;
+const hasBundle = fs.existsSync(BUNDLE); const hasWs = typeof WebSocket !== 'undefined';
+const SEED = 7; // human is hakem → the trump picker modal is exercised
 
 test('browser smoke: full game in headless Chromium, zero runtime errors', {
   skip: (!exe || !hasBundle || !hasWs)
-    ? `skipped: ${!exe ? 'no Chromium browser found' : !hasWs ? 'no global WebSocket in Node' : 'no index.html bundle'}`
+    ? `skipped: ${!exe ? 'no Chromium browser found' : 'no index.html bundle'}`
     : undefined,
   timeout: 120000,
 }, async () => {
@@ -189,8 +211,13 @@ test('browser smoke: full game in headless Chromium, zero runtime errors', {
   assert.ok(run.humanPlays >= 13, 'the human played at least a full round (>= 13 cards), got ' + run.humanPlays);
   assert.ok(run.log.some((x) => x.startsWith('trump:')), 'the trump picker modal was reached and used');
   assert.ok(run.log.some((x) => x === 'round'), 'at least one round completed and was acknowledged');
-  assert.ok(Number(run.scoreA) >= 7 || Number(run.scoreB) >= 7,
+  // a game ends exactly when a team reaches score 7
+  assert.ok(Number(run.scoreA) === 7 || Number(run.scoreB) === 7,
     `game ended at ${run.scoreA}-${run.scoreB}, expected a team at 7`);
+  // seed 7 is fully determined — pinning the final score proves the seeded browser
+  // game replays (the controller-level byte-identical check is in tests/game.test.js)
+  assert.equal(run.scoreA, '6', 'seed 7 replays to a fixed score');
+  assert.equal(run.scoreB, '7', 'seed 7 replays to a fixed score');
   assert.ok(run.endTitle.trim().length > 0, 'the winner screen shows a title');
   assert.ok(run.endMsg.trim().length > 0, 'the winner screen shows the final score line');
 

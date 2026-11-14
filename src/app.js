@@ -1,7 +1,8 @@
-// Hokm Royal SPA Controller — wires DOM to the pure engine (src/game.js).
+// Hokm Royal SPA Controller — wires DOM to the pure engine (src/game.js) & crisp SVG icons (src/svg.js).
 import { SYMBOLS, sortHand, mulberry32 } from './rules.js';
 import { createGame } from './game.js';
 import { coachHint, gradeMove } from './advisor.js';
+import { renderCardCenterSvg, renderSuitIconSvg } from './svg.js';
 import * as storage from './storage.js';
 
 const $ = (id) => document.getElementById(id);
@@ -15,7 +16,7 @@ let soundOn = storage && localStorage.getItem(storage.SOUND_KEY) !== '0';
 let analysisOn = localStorage.getItem('hokm_analysis_v1') !== '0';
 let coachOn = localStorage.getItem('hokm_coach_v1') === '1';
 let currentTheme = localStorage.getItem(THEME_KEY) || 'navy';
-let fanMode = false; // Normal non-overlapping layout by default for crystal-clear cards
+let fanMode = false; // 7-column 2-row grid by default so all 13 cards fit in 2 rows without clipping
 
 let audioCtx = null;
 function getAudioCtx() {
@@ -80,7 +81,7 @@ const view = {
     cardsBox.innerHTML = seq.map((item) => `
       <div class="ace-mini-chip${item.isAce ? ' winner' : ''}">
         <span>${names[item.player]}</span>
-        <b>${SYMBOLS[item.card.suit]}${item.card.rank}</b>
+        <b>${renderSuitIconSvg(item.card.suit)}${item.card.rank}</b>
       </div>
     `).join('');
     banner.classList.remove('hidden');
@@ -124,14 +125,14 @@ const gameRng = seedParam ? mulberry32(Number(seedParam) >>> 0) : Math.random;
 const game = createGame(view, gameRng, null);
 const G = game.G;
 
-// ---------- Classic Crystal-Clear Card Element (حالت معمولی و کاملاً واضح) ----------
+// ---------- Classic Crystal-Clear Card with Pure SVG Suit & Royal Crown Effect ----------
 function createCardEl(c, sizeClass = '') {
   const el = document.createElement('div');
   const isTrump = G.trumpMode === 'normal' && c.suit === G.trump;
   el.className = `card suit-${c.suit}${isTrump ? ' trump' : ''}${sizeClass ? ' ' + sizeClass : ''}`;
   el.dataset.card = `${c.suit}:${c.rank}`;
   el.innerHTML = `<span class="card-rank">${c.rank}</span>
-    <span class="card-suit-center">${SYMBOLS[c.suit]}</span>
+    <span class="card-suit-center">${renderCardCenterSvg(c, isTrump)}</span>
     <span class="card-rank bottom">${c.rank}</span>`;
   return el;
 }
@@ -161,8 +162,12 @@ function renderHand() {
   for (let idx = 0; idx < h.length; idx++) {
     const c = h[idx];
     const el = createCardEl(c);
-    const ok = myTurn && can.some((x) => x.suit === c.suit && x.rank === c.rank);
+    const isLegalNow = can.some((x) => x.suit === c.suit && x.rank === c.rank);
+    const ok = myTurn && isLegalNow;
     if (!ok) el.classList.add('disabled');
+    // Only dim unplayable cards when it IS the human's turn and follow-suit restricts choices!
+    if (myTurn && !isLegalNow) el.classList.add('unplayable-turn');
+    if (myTurn && isLegalNow) el.classList.add('playable-turn');
     if (ok) el.onclick = () => selectCard(c);
     const isSel = G.selectedCard && G.selectedCard.suit === c.suit && G.selectedCard.rank === c.rank;
     if (isSel) el.classList.add('selected');
@@ -181,12 +186,12 @@ function applyCoach(cont, myTurn) {
   const hint = coachHint(G, 1);
   if (!hint) { bar.classList.add('hidden'); return; }
   const key = (c) => `${c.suit}:${c.rank}`;
-  const sym = SYMBOLS[hint.best.suit];
+  const sym = renderSuitIconSvg(hint.best.suit);
   for (const el of cont.children) {
     if (el.dataset.card === key(hint.best)) el.classList.add('coach-best');
     if (hint.alt && el.dataset.card === key(hint.alt)) el.classList.add('coach-alt');
   }
-  const sym2 = hint.alt ? SYMBOLS[hint.alt.suit] : null;
+  const sym2 = hint.alt ? renderSuitIconSvg(hint.alt.suit) : null;
   bar.classList.remove('hidden');
   bar.innerHTML = `<span class="coach-line">🎓 پیشنهاد مربی: <b>${sym}${hint.best.rank}</b> — ${hint.bestReason}</span>` +
     (hint.alt ? `<span class="coach-line alt">گزینه جایگزین: <b>${sym2}${hint.alt.rank}</b> — ${hint.altReason}</span>` : '');
@@ -211,16 +216,21 @@ function updateUI() {
   $('tricksB').textContent = G.tricksWon.B;
   $('trickNum').textContent = G.trickNum;
 
-  let td = '-';
-  if (G.trump || G.trumpMode !== 'normal') {
-    if (G.trumpMode === 'normal') td = SYMBOLS[G.trump];
-    else if (G.trumpMode === 'ners') td = '(2) نرس';
-    else if (G.trumpMode === 'asners') td = '(A2) آس‌نرس';
-    else td = '(A) سرس';
+  const trumpEl = $('trumpDisplay');
+  if (trumpEl) {
+    if (G.trump || G.trumpMode !== 'normal') {
+      if (G.trumpMode === 'normal') trumpEl.innerHTML = renderSuitIconSvg(G.trump);
+      else if (G.trumpMode === 'ners') trumpEl.textContent = '(2) نرس';
+      else if (G.trumpMode === 'asners') trumpEl.textContent = '(A2) آس‌نرس';
+      else trumpEl.textContent = '(A) سرس';
+    } else {
+      trumpEl.textContent = '-';
+    }
   }
-  $('trumpDisplay').textContent = td;
   const centerEmblem = $('tableCenterTrump');
-  if (centerEmblem) centerEmblem.textContent = G.trumpMode === 'normal' && G.trump ? SYMBOLS[G.trump] : '👑';
+  if (centerEmblem) {
+    centerEmblem.innerHTML = G.trumpMode === 'normal' && G.trump ? renderSuitIconSvg(G.trump) : '👑';
+  }
 
   for (let i = 1; i <= 4; i++) {
     const box = $(`player${i}Box`);
@@ -235,7 +245,7 @@ function updateUI() {
     const vEl = $(`voids${i}`);
     if (vEl) {
       const vs = (G.memory && G.memory.voids && G.memory.voids[i]) || [];
-      vEl.innerHTML = vs.map((su) => `<span class="void-tag" title="خالی در ${SYMBOLS[su]}">∅${SYMBOLS[su]}</span>`).join('');
+      vEl.innerHTML = vs.map((su) => `<span class="void-tag" title="خالی در ${SYMBOLS[su]}">∅${renderSuitIconSvg(su)}</span>`).join('');
     }
   }
 
@@ -244,7 +254,7 @@ function updateUI() {
     if (G.trump || G.trumpMode !== 'normal') {
       const b = $(`trumpBadge${G.hakem}`);
       b.classList.remove('hidden');
-      b.textContent = G.trumpMode === 'normal' ? SYMBOLS[G.trump] : (G.trumpMode === 'ners' ? '2' : G.trumpMode === 'asners' ? 'A2' : 'A');
+      b.innerHTML = G.trumpMode === 'normal' ? renderSuitIconSvg(G.trump) : (G.trumpMode === 'ners' ? '2' : G.trumpMode === 'asners' ? 'A2' : 'A');
     }
   }
   if (G.phase !== 'idle') storage.saveGame(lz, localStorage, G);
@@ -306,7 +316,7 @@ function showLastTrick() {
         if (tone === 'bad') box.classList.add('bad');
         if (tone === 'warn') box.classList.add('warn');
         let html = `<span class="grade ${tone}">${label}</span> <span class="reason">${g.reason}</span>`;
-        if (g.better) html += ` <span class="better">حرکت بهتر: ${SYMBOLS[g.better.suit]}${g.better.rank}</span>`;
+        if (g.better) html += ` <span class="better">حرکت بهتر: ${renderSuitIconSvg(g.better.suit)}${g.better.rank}</span>`;
         if (g.tacticLabels && g.tacticLabels.length) html += ` <span class="tactics">[${g.tacticLabels.join(' · ')}]</span>`;
         box.innerHTML = html;
       }

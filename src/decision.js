@@ -16,7 +16,6 @@ export const GOALS = [
 
 function shortnessBonus(M, pid, c) {
   if (M.mode !== 'normal' || c.suit === M.trump) return 0;
-  // Never dump an unestablished King or Queen just because it is a singleton/doubleton!
   if ((c.rank === 'K' || c.rank === 'Q') && !isBossOfSuit(M, c)) return 0;
   const n = M.own.filter((x) => x.suit === c.suit).length;
   if (n === 1) return 0.55;
@@ -41,8 +40,7 @@ function drawTrumpsBonus(M, pid, c) {
     else break;
   }
   if (run >= 3) return 0.55;
-  if (run >= 2 && myTrumps.length >= 4) return 0.45;
-  if (run >= 1 && myTrumps.length >= 5) return 0.4;
+  if (run >= 2 && myTrumps.length >= 5) return 0.45;
   return 0;
 }
 
@@ -99,22 +97,23 @@ function duckUnderPartner(M, pid, c, cls, kotRisk) {
   return out;
 }
 
-// Evaluate leading honors vs small setup cards on ANY trick (not only trick 1).
 function leadHonorAdjust(M, pid, c, kotRisk) {
   const out = { score: 0, tags: [] };
   const isTrump = M.mode === 'normal' && !!M.trump && c.suit === M.trump;
   const trumps = M.mode === 'normal' && M.trump ? M.own.filter((x) => x.suit === M.trump) : [];
   const akPair = trumps.some((x) => x.rank === 'A') && trumps.some((x) => x.rank === 'K');
+  const hasSideCards = M.own.some((x) => x.suit !== M.trump);
 
   if (isTrump) {
     if (akPair) out.tags.push('TRUMP_CONTROL');
-    if (c.rank === 'A') {
-      const controlOurs = akPair && trumps.length >= 3;
-      if (!kotRisk && M.trickNum === 1) out.score -= controlOurs ? 1.5 : 6;
-    } else if (c.rank === 'K' && akPair && !kotRisk) {
-      out.score -= 1.5;
-    } else if (!kotRisk && !isBossOfSuit(M, c)) {
-      out.score -= 5;
+    // On early tricks (trick 1-3), avoid burning the Ace of trumps as a lead unless holding 5+ trumps or A-K-Q!
+    if (c.rank === 'A' && hasSideCards && M.trickNum <= 3) {
+      const strongArmy = (akPair && trumps.length >= 4) || trumps.length >= 5;
+      if (!kotRisk) out.score -= strongArmy ? 2.5 : 6.5;
+    } else if (c.rank === 'K' && akPair && !kotRisk && hasSideCards) {
+      out.score -= 3.5;
+    } else if (!kotRisk && !isBossOfSuit(M, c) && hasSideCards) {
+      out.score -= 6;
     }
     return out;
   }
@@ -128,8 +127,6 @@ function leadHonorAdjust(M, pid, c, kotRisk) {
 
   if (kotRisk) return out;
 
-  // CRITICAL RULE: When the Ace (or higher honor) of a suit has NOT been played yet
-  // (!isBossOfSuit(M, c)), NEVER lead a King or Queen unless holding K+Q together!
   if ((c.rank === 'K' || c.rank === 'Q') && (M.mode === 'normal' || M.mode === 'sers')) {
     if (!isBossOfSuit(M, c)) {
       const hasK = M.own.some((x) => x.suit === c.suit && x.rank === 'K');
@@ -137,7 +134,6 @@ function leadHonorAdjust(M, pid, c, kotRisk) {
       const hasKQ = hasK && hasQ;
       const lower = M.own.some((x) => x.suit === c.suit && cardVal(x, M.mode) < cardVal(c, M.mode));
       if (!hasKQ) {
-        // Heavy penalty whether singleton K or K-x: do NOT sacrifice K to an unplayed A!
         out.score -= lower ? 6.5 : 5.5;
         out.tags.push(lower ? 'ESTABLISH_SECONDARY_HONOR' : 'PRESERVE_HIGH_CARD');
       } else if (lower && M.trickNum === 1) {
@@ -145,13 +141,11 @@ function leadHonorAdjust(M, pid, c, kotRisk) {
         out.tags.push('ESTABLISH_SECONDARY_HONOR');
       }
     } else {
-      // The Ace WAS already played! Now our King (or Queen) IS the Boss of the suit -> cash it!
       out.score += 2.0;
       out.tags.push('CASH_SIDE_ACE');
     }
   } else if (M.mode === 'normal' && cardVal(c, 'normal') < 11 &&
              M.own.some((x) => x.suit === c.suit && (x.rank === 'K' || x.rank === 'Q') && !isBossOfSuit(M, x))) {
-    // Leading a small card from a suit where we hold an unestablished K or Q draws out the A!
     out.score += 0.9;
     out.tags.push('ESTABLISH_SECONDARY_HONOR');
   }
@@ -237,9 +231,8 @@ export function scoreMoves(s, pid) {
         goals.push('PARTNER_SUPPORT');
       }
       if (M.mode === 'normal' && c.suit === M.trump && dt <= 0) {
-        sc -= isBossOfSuit(M, c) ? 2.2 : 5.5;
+        sc -= isBossOfSuit(M, c) ? 3.5 : 6.0;
       }
-      // Apply lead honor protection on ALL tricks (never lead unprotected K/Q before A is played!)
       const lha = leadHonorAdjust(M, pid, c, kotRisk);
       sc += lha.score;
       for (const t of lha.tags) if (!goals.includes(t)) goals.push(t);
